@@ -49,12 +49,14 @@ AirUnit = Class( oldAirUnit ) {
     ####Needed for custom booms####
     CreateEffects = function( self, EffectTable, army, scale)
         for k, v in EffectTable do
-            self.Trash:Add(CreateAttachedEmitter(self, -1, army, v):ScaleEmitter(scale))
+		if self.RKEmitters == nil then self.RKEmitters = {} end
+			local emitter = CreateAttachedEmitter(self, -1, army, v):ScaleEmitter(scale)
+            table.insert(self.RKEmitters, emitter)
+			self.Trash:Add(emitter)
         end
     end,
 
     CreateUnitAirDestructionEffects = function( self, scale )
-        explosion.CreateDebrisProjectiles(self, explosion.GetAverageBoundingXYZRadius(self), {self:GetUnitSizes()})
     end,
     ####Needed for custom booms####
 
@@ -62,6 +64,7 @@ AirUnit = Class( oldAirUnit ) {
     OnCreate = function(self)
         MobileUnit.OnCreate(self)
         self:AddPingPong()
+		if self.RKEmitters == nil then self.RKEmitters = {} end
         local Faction = self:GetFaction()
 	local UnitTechLvl = self:GetUnitTechLvl()
         local SDFactionalSmallSmoke = SDEffectTemplate['SmallAirUnitSmoke'.. UnitTechLvl ..Faction]
@@ -85,15 +88,17 @@ AirUnit = Class( oldAirUnit ) {
         local SDEffectTemplate = import('/mods/rks_explosions/lua/SDEffectTemplates.lua')
         local SDExplosion = SDEffectTemplate['Explosion'.. UnitTechLvl ..Faction]
         local SDFallDownTrail = SDEffectTemplate[UnitTechLvl.. Faction..'FallDownTrail']
-
-            self.FxDamage1 = { SDEffectTemplate.AddNothing }  ##Attempt to remove the damage effects when the plane gets shot down
-            self.FxDamage2 = { SDEffectTemplate.AddNothing }  ##since the main falling-down effect that is spawned when it gets killed
-            self.FxDamage3 = { SDEffectTemplate.AddNothing }  ##is much bigger and should cover up the fact that these get removed
+		self.FxDamage1Amount = 0
+		self.FxDamage2Amount = 0
+		self.FxDamage3Amount = 0
+            ##self.FxDamage1 = { SDEffectTemplate.AddNothing }  ##Attempt to remove the damage effects when the plane gets shot down
+            ##self.FxDamage2 = { SDEffectTemplate.AddNothing }  ##since the main falling-down effect that is spawned when it gets killed
+            ##self.FxDamage3 = { SDEffectTemplate.AddNothing }  ##is much bigger and should cover up the fact that these get removed
 
         #if (self:GetCurrentLayer() == 'Air' and Random() < self.DestroyNoFallRandomChance) then
         if (self:GetCurrentLayer() == 'Air' ) then 
-            local army = self:GetArmy()      
-            self.CreateUnitAirDestructionEffects( self, 1.0 )
+            local army = self:GetArmy()  
+			self:DestroyAllDamageEffects()			
             self.CreateEffects( self, SDExplosion, Army, (Number/1.95*GlobalExplosionScaleValue)) ##Custom explosion when unit is in the air
             self.CreateEffects( self, SDFallDownTrail, Army, (Number*GlobalExplosionScaleValue)) ##Custom falling-down trail
             self:DestroyTopSpeedEffects()
@@ -115,15 +120,16 @@ AirUnit = Class( oldAirUnit ) {
     end,
 
     OnImpact = function(self, with, other)
-        local army = self:GetArmy()
-        local bp = self:GetBlueprint()
-        local Army = self:GetArmy()
+    local army = self:GetArmy()
+    local bp = self:GetBlueprint()
+    local Army = self:GetArmy()
 	local Faction = self:GetFaction()
 	local UnitTechLvl = self:GetUnitTechLvl()
 	local Number = self:GetNumberByTechLvl(UnitTechLvl or 'TECH1')
-        local SDEffectTemplate = import('/mods/rks_explosions/lua/SDEffectTemplates.lua')    
-        local SDExplosionImpact = SDEffectTemplate['Explosion'.. UnitTechLvl ..Faction]  
-        self.CreateEffects( self, SDExplosionImpact, Army, ((Number/1.75)*GlobalExplosionScaleValue) ) 
+    local SDEffectTemplate = import('/mods/rks_explosions/lua/SDEffectTemplates.lua')    
+    local SDExplosionImpact = SDEffectTemplate['Explosion'.. UnitTechLvl ..Faction]  
+        self.CreateEffects( self, SDExplosionImpact, Army, ((Number/1.75)*GlobalExplosionScaleValue) )
+        ##self.CreateUnitAirDestructionEffects( self, 1.0 )		
         ## ^ Custion explosion when unit hits the ground                                                                              
         ##(scaled to be bigger than when it explodes in the air because PHYSICS YO)
 
@@ -140,8 +146,11 @@ AirUnit = Class( oldAirUnit ) {
         end
 
         if with == 'Water' then  ##This will need to be played with to remove all custom effects while the unit is sinking
+		    for k,v in self.RKEmitters do v:ScaleEmitter(0) end
             self:PlayUnitSound('AirUnitWaterImpact')
             EffectUtil.CreateEffects( self, self:GetArmy(), EffectTemplate.Splashy )
+			self.CreateEffects( self, SDEffectTemplate.OilSlick, Army, 0.3*Number*(GetRandomInt(0.1, 1.5)) )
+			##self.CreateEffects( self, SDEffectTemplate.OilSlick, Army, 0.3*Number )
             #self:Destroy()
 	    self:ForkThread(self.SinkIntoWaterAfterDeath, self.OverKillRatio )   
         else
@@ -206,12 +215,15 @@ SeaUnit = Class( oldSeaUnit ) {
     end,
     
     CreateFactionalExplosionAtBone = function( self, boneName, scale )
-        local army = self:GetArmy() 
-        local Faction = self:GetFaction()
-	local UnitTechLvl = self:GetUnitTechLvl()
+        local army = self:GetArmy()
+		local bp = self:GetBlueprint()
+		local Army = self:GetArmy()
+		local Faction = self:GetFaction()
+		local UnitTechLvl = self:GetUnitTechLvl()
+		local Number = self:GetNumberByTechLvl(UnitTechLvl or 'TECH1')
         local SDFactionalShipSubExplosion = SDEffectTemplate[Faction.. 'ShipSubExpl' ..UnitTechLvl]
 
-        EffectUtil.CreateBoneEffects( self, boneName, army, SDFactionalShipSubExplosion )##:ScaleEmitter(scale) ##<-- if added, returns an error that "scale" is a nil value...
+        EffectUtil.CreateBoneEffects( self, boneName, army, SDFactionalShipSubExplosion ):ScaleEmitter(scale) ##<-- if added, returns an error that "scale" is a nil value...
 
     end,
 

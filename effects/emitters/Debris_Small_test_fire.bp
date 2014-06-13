@@ -2,7 +2,7 @@ EmitterBlueprint {
 	BlueprintId = 'Small_test_fire',
 	Lifetime = 1.20,
 	Repeattime = 25.00,
-	TextureFramecount = 8.00,
+	TextureFramecount = 16.00,
 	Blendmode = 0.00,
 	LocalVelocity = true,
 	LocalAcceleration = true,
@@ -23,7 +23,7 @@ EmitterBlueprint {
 	LowFidelity = true,
 	MedFidelity = true,
 	HighFidelity = true,
-	Texture = [[/mods/rks_explosions/textures/particles/fireballs.dds]],
+	Texture = [[/mods/rks_explosions/textures/particles/fireballslong.dds]],
 	RampTexture = [[/mods/rks_explosions/textures/particles/ramp_transparency.dds]],
 	XDirectionCurve = {
 		XRange = 50.00,
@@ -136,7 +136,7 @@ EmitterBlueprint {
 	FrameRateCurve = {
 		XRange = 50.00,
 		Keys = {
-			{ x=25.000,y=0.200,z=0.000 },
+			{ x=25.000,y=2.200,z=0.000 },
 		},
 	},
 	TextureSelectionCurve = {

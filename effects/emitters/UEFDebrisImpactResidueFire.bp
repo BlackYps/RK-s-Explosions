@@ -2,7 +2,7 @@ EmitterBlueprint {
 	BlueprintId = 'AircraftDamageFireBig01',
 	Lifetime = 90,
 	Repeattime = 1,
-	TextureFramecount = 8.00,
+	TextureFramecount = 16.00,
 	Blendmode = 0.00,
 	LocalVelocity = true,
 	LocalAcceleration = true,
@@ -23,7 +23,7 @@ EmitterBlueprint {
 	LowFidelity = true,
 	MedFidelity = true,
 	HighFidelity = true,
-	Texture = [[/mods/rks_explosions/textures/particles/fireballs.dds]],
+	Texture = [[/mods/rks_explosions/textures/particles/fireballslong.dds]],
 	RampTexture = [[/mods/rks_explosions/textures/particles/ramp_white_premod_01.dds]],
 	XDirectionCurve = {
 		XRange = 15.00,

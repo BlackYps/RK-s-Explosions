@@ -2,7 +2,7 @@ EmitterBlueprint {
 	BlueprintId = 'TEMPMissileThrust',
 	Lifetime = -1.00,
 	Repeattime = 1,
-	TextureFramecount = 8.00,
+	TextureFramecount = 16.00,
 	Blendmode = 0.00,
 	LocalVelocity = true,
 	LocalAcceleration = true,

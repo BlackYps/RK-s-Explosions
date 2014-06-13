@@ -32,8 +32,8 @@ ConcussionRingLrg01 = { EmtBpPath .. 'destruction_explosion_concussion_ring_01_e
 # Fire Cloud Effects
 #---------------------------------------------------------------
 FireCloudSml01 = {
-    EmtBpPath .. 'fire_cloud_05_emit.bp',
-    EmtBpPath .. 'fire_cloud_04_emit.bp',
+    ##EmtBpPath .. 'fire_cloud_05_emit.bp',
+    ##EmtBpPath .. 'fire_cloud_04_emit.bp',
 	ModPath .. 'small_test_sonic.bp',
 	ModPath .. 'small_test_fire.bp',
 	ModPath .. 'small_test_random.bp',
@@ -41,8 +41,8 @@ FireCloudSml01 = {
 }
 
 FireCloudMed01 = { --HERE
-    EmtBpPath .. 'fire_cloud_06_emit.bp',
-    EmtBpPath .. 'explosion_fire_sparks_01_emit.bp',
+    ##EmtBpPath .. 'fire_cloud_06_emit.bp',
+    ##EmtBpPath .. 'explosion_fire_sparks_01_emit.bp',
 	ModPath .. 'small_test_sonic.bp',
 	ModPath .. 'small_test_fire.bp',
 	ModPath .. 'small_test_random.bp',
